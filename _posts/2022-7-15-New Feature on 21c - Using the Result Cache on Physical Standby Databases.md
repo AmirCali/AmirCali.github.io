@@ -24,6 +24,7 @@ CREATE TABLE demo.testable (
 id number)
 RESULT_CACHE (STABLE ENABLE);
 ```
+Output:
 ```sql
 Table created.
 ```
@@ -37,6 +38,7 @@ INSERT INTO demo.testable VALUES (3);
 INSERT INTO demo.testable VALUES (4);
 INSERT INTO demo.testable VALUES (5);
 ```
+Output:
 ```sql
 SQL> SQL>
 1 row created.
@@ -61,10 +63,19 @@ DBMS_LOCK.sleep(1);
 RETURN p_id;
 END;
 ```
+Output:
 ```sql
 Function created.
 ```
 
 
+Ejecutamos la función para medir el tiempo de consulta del Query:
+
+```sql
+SQL> set timing on
+SQL> SELECT demo.fn_testable(id) FROM q_table;
+```
+
 
 ![_config.yml]({{ site.baseurl }}/images/config.png)
+
