@@ -7,6 +7,10 @@ Oracle 21c nos permite mejorar el desempeño de los queries que implementemos y 
 
 Para implementar esta opción podemos hacerlo desde el momento de la creación de las tablas, así como después, digamos en el caso en que nos demos cuenta de que la tabla anteriormente creada se consulta reiterativamente y nos convendría agregarla a este cache.
 
+```SQL
+ALTER TABLE employee RESULT_CACHE (STANDBY ENABLE);
+```
+
 
 Next you can update your site name, avatar and other options using the _config.yml file in the root of your repository (shown below).
 
