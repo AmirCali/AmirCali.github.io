@@ -17,7 +17,7 @@ En el caso de querer habilitar esta opción al crear una tabla se debería segui
 En caso de querer implementar esta funcionalidad en una tabla creada anteriormente seguiremos la siguiente estructura:
 
 ```sql
-        ALTER TABLE EMPLOYEE RESULT_CACHE (STANDBY ENABLE); 
+    ALTER TABLE EMPLOYEE RESULT_CACHE (STANDBY ENABLE); 
 ```
 
 
