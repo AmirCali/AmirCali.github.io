@@ -68,7 +68,7 @@ Function created.
 ```
 
 
-Ejecutamos la función para medir el tiempo de consulta del Query:
+Ejecutamos la función para medir el tiempo de consulta del Query en s formato base:
 ```sql
 SQL> set timing on
 SQL> SELECT demo.fn_testable(id) FROM q_table;
@@ -105,7 +105,7 @@ DEMO.FN_testable(ID)
 
 Elapsed: 00:00:05.00
 ```
-El tiempo sigue siendo el mismo debido a que en esta segnuda ejecución recién está almacenando los resultados en el caché de la StandBy Database.
+El tiempo sigue siendo el mismo debido a que en esta segunda ejecución recién está almacenando los resultados en el caché de la base de datos.
 
 
 La diferencia es que a partir de ahora acada que se haga una consulta igual, el tiempo de consulta disminuirá drásticamente, como se puede ver a continuación:
@@ -123,10 +123,75 @@ DEMO.FN_testable(ID)
 5
 Elapsed: 00:00:00.01
 ```
-Como podemos observar, efectivamente el tiempo de consulta ha disminuido varias veces. Lo cual a una escala mayor puede presentar una gran ventaja, por ejemplo en casos como:
-    -Hospitales cuando deban consultar su lista de clientes
-    -
-    
+Como podemos observar, efectivamente el tiempo de consulta ha disminuido varias veces.
 
-![_config.yml]({{ site.baseurl }}/images/config.png)
+
+Ahora procederemos a activar el RESULT_CACHE en la base de datos que se encuentra en modo STANDBY gracias al Active Data Guard:
+```sql
+SQL> alter table demo.testable RESULT_CACHE (STANDBY ENABLE);
+```
+Output:
+```sql
+Table altered.
+```
+
+
+Verificamos lo realizado hasta el momento
+```sql
+SQL> select database_role,open_mode from v$database;
+```
+Output:
+```sql
+DATABASE_ROLE OPEN_MODE
+—————- ——————–
+PHYSICAL STANDBY READ ONLY WITH APPLY
+```
+
+Nuevamente realizamos la consulta para que se almacene:
+```sql
+SQL> select /*+ result_cache */ demo.fn_testable(id) FROM demo.testable;
+```
+Output:
+```sql
+DEMO.FN_testable(ID)
+—————-
+1
+2
+3
+4
+5
+
+Elapsed: 00:00:05.08
+```
+Los resultados guardan relación con los anteriores
+
+
+
+Finalmente vamos a testear el tiempo que se demora el sistema en consultar directamente desde la cache de la base de datos en StandBy:
+```sql
+SQL> select /*+ result_cache */ demo.fn_testable(id) FROM demo.testable;
+```
+Output:
+```sql
+DEMO.FN_testable(ID)
+—————-
+1
+2
+3
+4
+5
+
+Elapsed: 00:00:00.00
+```
+Y con ese 00:00:00:00 comprobamos la practicidad que nos brinda la versión 21c con esta funcionalidad
+
+Conclusión:
+Aplicado a una escala mayor, digamos a nivel de Essalud, Active Data Guard proveería una gran ventaja, y si a eso le sumamos que ahora las consultas más frecuentes no consumirían recursos de la base de datos principal, habilitando una mayor capacidad de procesamiento para otros procesos gracias a esta funcionalidad, se podrían reducir los tiempos de consulta como por ejemplo:
+
+    - Verificación de pacients que tienen SIS.
+    - Historia clínica de pacientes con condiciones que deben acudir regularmente a los establecimientos.
+    
+Y así en muchos otros casos como por ejemplo en Bancos con datos de los cleintes, etc.
+
+
 
